@@ -1,5 +1,6 @@
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -28,7 +29,14 @@ void showLidarTopview()
         int y = (-xw * imageSize.height / worldSize.height) + imageSize.height;
         int x = (-yw * imageSize.height / worldSize.height) + imageSize.width / 2;
 
-        cv::circle(topviewImg, cv::Point(x, y), 5, cv::Scalar(0, 0, 255), -1);
+        // filter plane
+        if ((*it).z > -1.4) {
+            // calculate red and green values to get color gradient based on distance
+            uint rVal = 255 - 255. / 20. * std::clamp<float>(xw, 0, 20);
+            uint gVal = 255. / 20. * std::clamp<float>(xw, 0, 20);
+            cv::circle(topviewImg, cv::Point(x, y), 5, cv::Scalar(0, gVal, rVal), -1);
+        }
+        
         
         // TODO: 
         // 1. Change the color of the Lidar points such that 
